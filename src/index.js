@@ -25,6 +25,7 @@ class Board extends React.Component {
         this.state = {
             squares: Array(9).fill(null),
             xIsNext: true,
+            status: 'Next player: X',
         };
     }
 
@@ -35,13 +36,47 @@ class Board extends React.Component {
             // maximum immutability (assigning whole objects
             // instead of parts of the object)
             const squares = this.state.squares.slice();
-            squares[i] = (this.state.xisNext ? 'X' : 'O');
+            let playerChar = this.state.xIsNext ? 'X' : 'O';
+            let nextStatus = 'Next player: ' + (this.state.xIsNext ? 'O' : 'X');
+
+            squares[i] = playerChar;
+            if(this.checkIfWinner(playerChar, squares)) {
+                nextStatus = playerChar + " player wins!";
+            }
 
             this.setState({
                 squares: squares,
                 xIsNext: !this.state.xIsNext,
+                status: nextStatus,
             });
         }
+    }
+
+    checkIfWinner(playerChar, squares) {
+
+        const wins = [
+            [0, 1, 2],
+            [3, 4, 5],
+            [6, 7, 8],
+            [0, 3, 6],
+            [1, 4, 7],
+            [2, 5, 8],
+            [0, 4, 8],
+            [2, 4, 6],
+        ];
+
+        for(let win in wins) {
+            let complete = true;
+            for(let i = 0; i < 3; ++i) {
+                if(squares[win[i]] !== playerChar) {
+                    complete = false;
+                    break;
+                }
+            } 
+            if(complete) { return true; }
+        }
+
+        return false;
     }
 
     renderSquare(i) {
@@ -59,11 +94,10 @@ class Board extends React.Component {
     }
 
     render() {
-        const status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
 
         return (
         <div>
-            <div className="status">{status}</div>
+            <div className="status">{this.state.status}</div>
             <div className="board-row">
             {this.renderSquare(0)}
             {this.renderSquare(1)}
